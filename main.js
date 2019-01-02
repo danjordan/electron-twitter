@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path');
-const { app, BrowserWindow, shell, Tray } = require('electron');
+const { app, BrowserWindow, session, shell, Tray } = require('electron');
 
 app.on('ready', () => {
   if (process.platform === 'darwin') {
@@ -17,17 +17,14 @@ app.on('ready', () => {
     show: false
   });
 
-  browserWindow.on('blur', () => {
+  browserWindow.on('blur', event => {
     browserWindow.hide();
   });
 
-  browserWindow.webContents.on(
-    'did-get-redirect-request',
-    (event, oldURL, newURL, isMainFrame) => {
-      if (isMainFrame) {
-        setTimeout(() => browserWindow.loadURL(newURL), 100);
-        event.preventDefault();
-      }
+  session.defaultSession.webRequest.onBeforeRequest(
+    ['*twitter.com'],
+    (details, callback) => {
+      callback({ cancel: false });
     }
   );
 
